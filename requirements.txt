@@ -75,7 +75,7 @@ h5py==2.10.0
 hpack==3.0.0
 hstspreload==2020.4.14
 html5lib==1.0.1
-httplib2==0.17.2
+httplib2==0.18.0
 httptools==0.0.13
 httpx==0.9.3
 humanfriendly==8.1
