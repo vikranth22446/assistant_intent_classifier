@@ -256,7 +256,7 @@ typing-extensions==3.7.4.2
 tzlocal==1.5.1
 ujson==1.35
 urllib3==1.24.3
-uvicorn==0.11.1
+uvicorn==0.11.7
 uvloop==0.14.0
 virtualenv==16.0.0
 wcwidth==0.1.7
