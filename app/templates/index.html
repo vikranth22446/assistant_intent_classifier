@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intent Classification</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Bot Chat: {{ room }}</h1>
+<textarea id="chat" cols="80" rows="20"></textarea><br><br>
+<input id="text" size="80" placeholder="Enter your message here"><br><br>
+<input id="username" size="20" placeholder="Change Name"><br><br>
+<a href="#" onclick="leave_room();">Leave this room</a> <br/>
+<a href="#" onclick="clear_chat();">Clear chat</a>
+
+<br/>
+
+<h1>Intent Classifier</h1>
+<textarea id="textarea">
+    How's the weather today?
+</textarea>
+<br/>
+Intent:
+<div id="intent_div"></div>
+<br/>
+prob:
+<div id="prob"></div>
+
+<br/>
+<button onclick="getIntent()">Get Intent</button>
+<script>
+    function getIntent() {
+        var textAreaText = document.getElementById("textarea").value;
+        $.ajax({
+            type: "POST", url: '/classify/' + textAreaText,
+            success: function (response) {
+                console.log(response)
+                document.getElementById('intent_div').innerHTML = response.intent
+                document.getElementById('prob').innerHTML = response.prob
+
+            }
+        })
+    }
+
+    var socket;
+    $(document).ready(function () {
+        socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+        socket.on('connect', function () {
+            socket.emit('joined', {});
+        });
+        socket.on('status', function (data) {
+            $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
+            $('#chat').scrollTop($('#chat')[0].scrollHeight);
+        });
+        socket.on('message', function (data) {
+            $('#chat').val($('#chat').val() + data.msg + '\n');
+            $('#chat').scrollTop($('#chat')[0].scrollHeight);
+        });
+        $('#text').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code == 13) {
+                text = $('#text').val();
+                $('#text').val('');
+                socket.emit('text', {msg: text});
+            }
+        });
+        $('#username').keypress(function (e) {
+            var code = e.keyCode || e.which;
+            if (code == 13) {
+                text = $('#username').val();
+                $('#username').val('');
+                socket.emit('session_name', {msg: text});
+            }
+        });
+    });
+
+    function leave_room() {
+        socket.emit('left', {}, function () {
+            socket.disconnect();
+
+            // go back to the login page
+            window.location.href = "{{ url_for('main.index') }}";
+        });
+    }
+    function clear_chat() {
+        $('#chat').val('')
+    }
+</script>
+</body>
+</html>

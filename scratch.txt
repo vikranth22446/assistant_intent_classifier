@@ -1,0 +1,10 @@
+Intent -> Questions or Unrelated
+
+Time -> What time is the meeting?
+     -> Other questions that the bot answer
+     -> context based questions
+     -> non context based on
+     -> arbit time related
+     -> Unrelated
+
+BOT NAME, ___________
