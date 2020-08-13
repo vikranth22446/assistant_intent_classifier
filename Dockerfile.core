@@ -1,0 +1,3 @@
+FROM assistant_intent_classifier/base
+
+COPY

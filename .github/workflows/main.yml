@@ -1,0 +1,32 @@
+
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run docker login
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Use Makefile to build non core
+      run: make build-core
+
+    - name: Tag latest item
+      run: docker tag assistant_intent_classifier/core vikranth/assistant_intent_classifier_core:latest
+
+    - name: Push latest item
+      run: docker push vikranth/assistant_intent_classifier_core:latest

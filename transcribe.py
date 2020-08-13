@@ -154,12 +154,12 @@ class VADAudio(Audio):
 def main(ARGS):
     # Load DeepSpeech model
     if os.path.isdir(ARGS.model):
-        model_dir = './deepspeech-0.6.0-models'
+        model_dir = 'deepspeech-0.7.3-models'
         ARGS.model = os.path.join(model_dir, 'output_graph.pb')
 
     print('Initializing model...')
     logging.info("ARGS.model: %s", ARGS.model)
-    model = deepspeech.Model('deepspeech-0.6.0-models/deepspeech-0.7.3-models.pbmm')
+    model = deepspeech.Model('deepspeech-0.7.3-models/deepspeech-0.7.3-models.pbmm')
     if ARGS.scorer:
         logging.info("ARGS.scorer: %s", ARGS.scorer)
         model.enableExternalScorer(ARGS.scorer)

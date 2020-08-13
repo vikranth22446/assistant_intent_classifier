@@ -1,10 +1,19 @@
 # Assistant Intent Classification
+## Docker Setup Instructions
 
-## Setting up
+Use The Makefile to run 
+``
+make run-core
+``
+
+
+
+## Local Setup Instructions
 
 Install the requirements via
 `pip3 install -r requirements.txt` and run the jupyter notebook
 
+### Running the notebook
 Download Glove for word embeddings
 ```sh
 mkdir GloVe
@@ -21,14 +30,26 @@ curl -Lo encoder/infersent1.pkl https://dl.fbaipublicfiles.com/infersent/inferse
 
 Run the classifier notebook classifier.ipynb to load and view the data.
 
+### Running the Server 
 Current Accuracy:
 
 Download deepspeech-0.7.3-models from deepspeech directory. The files that should be included are 
+```
 ├── deepspeech-0.7.3-models.pbmm
 ├── lm.binary
 ├── output_graph.pb
 ├── output_graph.pbmm
 ├── output_graph.tflite
 └── trie
+```
 
-Download ffc_keras_model from the notebook 
+Download ffc_keras_model and infraset_model.torch from the notebook 
+
+
+
+## Architecture Documentation
+One Architecture Diagram: https://people.eecs.berkeley.edu/~nmalkin/alva/architecture
+
+Another Design/Diagram
+
+![Architecture Diagram](blues_arch_diagram.png)
