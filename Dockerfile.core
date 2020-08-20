@@ -1,3 +1,3 @@
-FROM assistant_intent_classifier/base
+FROM vikranth:assistant_intent_classifier/base
 
-COPY
+COPY . . 

@@ -1,0 +1,7 @@
+version: '3'
+services:
+    web:
+        image: assistant_intent_classifier/core
+        ports:
+            - "127.0.0.1:80:80"
+

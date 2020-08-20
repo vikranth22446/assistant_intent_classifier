@@ -4,7 +4,7 @@ from flask import render_template, request, jsonify, current_app, send_from_dire
 
 from app import db
 from app.main import main
-from app.models.record import Record, Tag
+from app.models.record import Record, Tag, Skills
 from .. import socketio
 from flask_socketio import emit, join_room, leave_room
 import numpy as np
@@ -193,3 +193,13 @@ def session_name(message):
     room = session.get('room')
     session['name'] = message['msg']
     emit('status', {'msg': session.get('name', 'test') + ' has joined the room.'}, room=room)
+
+@main.route("/register_skill", methods=["POST", "GET"])
+def register_skill():
+    if request.method == "POST":
+            skill_name = request.form['skill_name']
+            skill_description = request.form['skill_description']
+            skill_endpoint = request.form['skill_endpoint']
+            Skills.register_skill(skill_name, skill_description, skill_endpoint)
+    else:
+        return render_template('admin_skill.html')
