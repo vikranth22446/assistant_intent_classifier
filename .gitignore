@@ -18,3 +18,4 @@ data.json
 *.pb
 *.db
 *.pkl
+*.npy
