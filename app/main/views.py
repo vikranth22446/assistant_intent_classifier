@@ -15,33 +15,48 @@ import spacy, re
 from transformers import pipeline
 import torch
 import time
-
+from app.voice.shopping_main import find_shopping_item
+from app.voice.swear_jar import check_profanity
+from app.voice.swear_jar import remove_swear_intent
+from app.voice.time import schedule_meeting_intent
+from app.voice.time import latest_time_up
+from app.voice.basic_commands import audio_recorder, dismiss_ai, question_time, play_news, set_alarm_reminder, weather_query, random_intent, play_music
 spacy_tagger = spacy.load('en_core_web_sm')
 
-infraset_model = torch.load('infraset_model.torch')
-infraset_model.eval()
-ffcc = tf.keras.models.load_model('ffcc_keras_model')
-label_encoder = pickle.load(open('label_encoding.pkl', 'rb'))
+
 BOT_NAME = 'cain'
 default_question_answering = pipeline('question-answering')
 
 
-def get_labels_decoded(arr):
-    return label_encoder.inverse_transform(arr)
 
 
-def get_doc2vec(text, verbose=False):
-    return infraset_model.encode(text, verbose=verbose)
+def get_shopping_classification(text):
+    pred, prob = find_shopping_item(text)
+    return pred, prob
 
 
 def quick_predict_label(text, cutoff=0.0):
-    X = get_doc2vec([text])
-    predictions = ffcc.predict(X)
-    predicted_labels = get_labels_decoded(np.argmax(predictions, axis=1))  # each integer is [0, 0, 0,1]
-    prob = np.max(predictions, axis=1)  # each integer is [0, 0, 0,1]
-    if prob < cutoff:
-        predicted_labels[0] = 'oos'  # since only one item
+    print("[DEBUG] First layer general prediction", predicted_labels, prob)
+    predict_shopping, shopping_prob = get_shopping_classification(text)
+    print("[DEBUG] Shopping layer general prediction", predicted_labels, prob)
+    includes_swear, swear_count = check_profanity(text)
+    print("[DEBUG] Swear detection: ", includes_swear, swear_count)
 
+    print("Moving to regular skills")
+    print("[DEBUG] Clear Swear detection: ", remove_swear_intent(text))
+    print("[DEBUG] Schedule Meeting Detection: ", schedule_meeting_intent(text))
+    print("[DEBUG] Latest Time up Detection: ", latest_time_up(text))
+
+    print("[DEBUG] Record Audio: ", audio_recorder(text))
+    print("[DEBUG] Dismiss AI: ", dismiss_ai(text))
+    print("[DEBUG] What time/day is it?: ", question_time(text))
+    print("[DEBUG] Play news?: ", play_news(text))
+    print("[DEBUG] Get weather info?: ", weather_query(text))
+    print("[DEBUG] Should set alarm?: ", set_alarm_reminder(text))
+    print("[DEBUG] Play music?: ", play_music(text))
+    print("[DEBUG] Should give randomized number?: ", random_intent(text))
+    if shopping_prob > prob:
+        return "Shopping; " + predict_shopping, shopping_prob
     return predicted_labels[0], prob[0]
 
 
@@ -59,6 +74,7 @@ def classify(text):
     # db.session.add(record)
     # db.session.commit()
     return jsonify({"intent": intent, "prob": prob})
+
 
 @main.route("/classify_record/<string:text>", methods=["POST", "GET"])
 def classify_url(text):
@@ -79,7 +95,7 @@ def classify_url(text):
          room=room)
     log.append({'msg': '<Classified Last Message from Cain as {} with prob {}'.format(intent, prob)})
     tagged_sent = []
-    
+
     if prob > 0.50:
         doc = spacy_tagger(msg)
         tags = [(w.text, w.tag_) for w in doc if w.tag_ in ['NNP', 'NN', 'NNS']]
