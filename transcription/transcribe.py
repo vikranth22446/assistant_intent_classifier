@@ -154,17 +154,21 @@ class VADAudio(Audio):
                     yield None
                     ring_buffer.clear()
 
-def default_save_audio_path_func(wav_data, wav_dir="save_audio/"):
+def default_save_audio_path_func(vad_audio, wav_data, wav_dir="save_audio/"):
     vad_audio.write_wav(os.path.join(wav_dir, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
     os.makedirs(wav_dir, exist_ok=True)
 
 def default_input_detected_callback(text):
+    if not text:
+        return
     print("Recognized: %s" % text)
-    if text:
-        r = requests.get("http://localhost:8000/classify/"+text)
-        print("Json Response", json.dumps(r.json(), indent = 4))
-        r = requests.get("http://localhost:8000/classify_record/"+text)
-        print("Json Response", json.dumps(r.json(), indent = 4))
+    with open("test.txt", 'a') as f:
+        f.write(text + "\n")
+    # if text:
+    #     r = requests.get("http://localhost:8000/classify/"+text)
+    #     print("Json Response", json.dumps(r.json(), indent = 4))
+    #     r = requests.get("http://localhost:8000/classify_record/"+text)
+    #     print("Json Response", json.dumps(r.json(), indent = 4))
 
 def handle_audio(save_audio_path_func, input_detected_callback, 
                 deepspeech_model_dir='deepspeech-0.7.3-models', 
@@ -189,21 +193,24 @@ def handle_audio(save_audio_path_func, input_detected_callback,
     for frame in frames:
         if frame is not None:
             if spinner: spinner.start()
-            log.debug("streaming frame")
+            logging.debug("streaming frame")
             stream_context.feedAudioContent(np.frombuffer(frame, np.int16))
-            if save_audio_path_func: wav_data.extend(frame)
+            if True: wav_data.extend(frame)
         else:
             if spinner: spinner.stop()
-            log.debug("end utterence")
-            if save_audio_path_func:
-                save_audio_path_func(wav_data)
+            logging.debug("end utterence")
+            if True:
+                vad_audio.write_wav(os.path.join('save_audio', datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
                 wav_data = bytearray()
             text = stream_context.finishStream()
-            input_detected_callback(text)
+            text = text.strip()
+            default_input_detected_callback(text)
+            # print("Recognized: %s" % text)
+            stream_context = model.createStream()
 
 
 @click.command()
-@click.option('--v', default=True, help='Not verbose')
+@click.option('-v', default=True, help='Not verbose')
 @click.option('--vad_agg', default=1, help='Set aggressiveness of VAD: an integer between 0 and 3, 0 being the least aggressive about filtering out non-speech, 3 the most aggressive.')
 @click.option("-f", help="Read from .wav file instead of microphone")
 def cli(v, vad_agg, f):
