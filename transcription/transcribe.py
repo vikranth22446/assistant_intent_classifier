@@ -12,9 +12,11 @@ import requests
 import json
 import click
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Disables Tf warnings
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Disables Tf warnings
 log = logging.getLogger(__name__)
 DEFAULT_SAMPLE_RATE = 16000
+
 
 class Audio(object):
     """Streams raw audio from microphone. Data is received in a separate thread, and stored in a buffer, to be read from."""
@@ -27,11 +29,12 @@ class Audio(object):
 
     def __init__(self, callback=None, device=None, input_rate=RATE_PROCESS, file=None):
         def proxy_callback(in_data, frame_count, time_info, status):
-            #pylint: disable=unused-argument
+            # pylint: disable=unused-argument
             if self.chunk is not None:
                 in_data = self.wf.readframes(self.chunk)
             callback(in_data)
             return (None, pyaudio.paContinue)
+
         if callback is None: callback = lambda in_data: self.buffer_queue.put(in_data)
         self.buffer_queue = queue.Queue()
         self.device = device
@@ -154,9 +157,11 @@ class VADAudio(Audio):
                     yield None
                     ring_buffer.clear()
 
-def default_save_audio_path_func(vad_audio, wav_data, wav_dir="save_audio/"):
+
+def default_save_audio_path_func(vad_audio, wav_data, wav_dir="save_audio_old/"):
     vad_audio.write_wav(os.path.join(wav_dir, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
     os.makedirs(wav_dir, exist_ok=True)
+
 
 def default_input_detected_callback(text):
     if not text:
@@ -170,11 +175,12 @@ def default_input_detected_callback(text):
     #     r = requests.get("http://localhost:8000/classify_record/"+text)
     #     print("Json Response", json.dumps(r.json(), indent = 4))
 
-def handle_audio(save_audio_path_func, input_detected_callback, 
-                deepspeech_model_dir='deepspeech-0.7.3-models', 
-                verbose=True, 
-                vad_aggressiveness=1,
-                input_file=None):
+
+def handle_audio(save_audio_path_func, input_detected_callback,
+                 deepspeech_model_dir='deepspeech-0.7.3-models',
+                 verbose=True,
+                 vad_aggressiveness=1,
+                 input_file=None):
     model_path = os.path.join(deepspeech_model_dir, 'deepspeech-0.7.3-models.pbmm')
     log.info('Initializing model...')
     model = deepspeech.Model(model_path)
@@ -190,17 +196,24 @@ def handle_audio(save_audio_path_func, input_detected_callback,
     frames = vad_audio.vad_collector()
     stream_context = model.createStream()
     wav_data = bytearray()
+
     for frame in frames:
         if frame is not None:
+
             if spinner: spinner.start()
+
             logging.debug("streaming frame")
             stream_context.feedAudioContent(np.frombuffer(frame, np.int16))
+
             if True: wav_data.extend(frame)
+
         else:
             if spinner: spinner.stop()
             logging.debug("end utterence")
             if True:
-                vad_audio.write_wav(os.path.join('save_audio', datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
+                vad_audio.write_wav(
+                    os.path.join('save_audio_old', datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")),
+                    wav_data)
                 wav_data = bytearray()
             text = stream_context.finishStream()
             text = text.strip()
@@ -211,13 +224,14 @@ def handle_audio(save_audio_path_func, input_detected_callback,
 
 @click.command()
 @click.option('-v', default=True, help='Not verbose')
-@click.option('--vad_agg', default=1, help='Set aggressiveness of VAD: an integer between 0 and 3, 0 being the least aggressive about filtering out non-speech, 3 the most aggressive.')
+@click.option('--vad_agg', default=1,
+              help='Set aggressiveness of VAD: an integer between 0 and 3, 0 being the least aggressive about filtering out non-speech, 3 the most aggressive.')
 @click.option("-f", help="Read from .wav file instead of microphone")
-def cli(v, vad_agg, f):
+def cli(vad_agg, f, v=True):
     """Simple program that greets NAME for a total of COUNT times."""
-    handle_audio(default_save_audio_path_func, 
-                 default_input_detected_callback, 
-                 verbose=v, 
+    handle_audio(default_save_audio_path_func,
+                 default_input_detected_callback,
+                 verbose=v,
                  vad_aggressiveness=vad_agg)
 
 

@@ -9,6 +9,7 @@ from app.config import config, Config
 db = SQLAlchemy()
 logger = logging.getLogger(__name__)
 socketio = SocketIO()
+global_skills_dic = {}
 
 def create_app(config_name=None, db_ref=None) -> Flask:
     if not config_name:

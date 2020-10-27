@@ -19,3 +19,7 @@ data.json
 *.db
 *.pkl
 *.npy
+*.bin
+transcription/wav2lettermodel
+*.arch
+*.wav

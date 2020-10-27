@@ -4,7 +4,7 @@ from flask import render_template, request, jsonify, current_app, send_from_dire
 
 from app import db
 from app.main import main
-from app.models.record import Record, Tag
+from app.models.record import Record, Tag, UserSkills
 from .. import socketio
 from flask_socketio import emit, join_room, leave_room
 import numpy as np
@@ -15,49 +15,76 @@ import spacy, re
 from transformers import pipeline
 import torch
 import time
-from app.voice.shopping_main import find_shopping_item
-from app.voice.swear_jar import check_profanity
-from app.voice.swear_jar import remove_swear_intent
-from app.voice.time import schedule_meeting_intent
-from app.voice.time import latest_time_up
-from app.voice.basic_commands import audio_recorder, dismiss_ai, question_time, play_news, set_alarm_reminder, weather_query, random_intent, play_music
+from app import global_skills_dic
+
+import logging
+
+log = logging.getLogger(__name__)
+
+# from app.voice.shopping_main import find_shopping_item
+
+# from app.voice.swear_jar import check_profanity
+
+# from app.voice.swear_jar import remove_swear_intent
+
+# from app.voice.time import schedule_meeting_intent
+
+# from app.voice.time import latest_time_up
+
+# from app.voice.basic_commands import audio_recorder, \
+#     dismiss_ai, \
+#     question_time, \
+#     play_news, \
+#     set_alarm_reminder, \
+#     weather_query, \
+#     random_intent, \
+#     play_music
+
 spacy_tagger = spacy.load('en_core_web_sm')
 
-
-BOT_NAME = 'cain'
 default_question_answering = pipeline('question-answering')
 
-
+BOT_NAME = 'cain'
 
 
 def get_shopping_classification(text):
-    pred, prob = find_shopping_item(text)
-    return pred, prob
+    # pred, prob = find_shopping_item(text)
+    # return pred, prob
+
+    pass
 
 
 def quick_predict_label(text, cutoff=0.0):
-    print("[DEBUG] First layer general prediction", predicted_labels, prob)
-    predict_shopping, shopping_prob = get_shopping_classification(text)
-    print("[DEBUG] Shopping layer general prediction", predicted_labels, prob)
-    includes_swear, swear_count = check_profanity(text)
-    print("[DEBUG] Swear detection: ", includes_swear, swear_count)
+    for skill in UserSkills.query.all():
+        skill_name = skill.skill_name
+        if skill_name not in global_skills_dic:
+            log.debug("Warning unavailable skill but exists in database")
+        global_skills_dic[skill.name].handle_classification(text)
 
-    print("Moving to regular skills")
-    print("[DEBUG] Clear Swear detection: ", remove_swear_intent(text))
-    print("[DEBUG] Schedule Meeting Detection: ", schedule_meeting_intent(text))
-    print("[DEBUG] Latest Time up Detection: ", latest_time_up(text))
+    # print("[DEBUG] First layer general prediction", predicted_labels, prob)
+    # predict_shopping, shopping_prob = get_shopping_classification(text)
+    # print("[DEBUG] Shopping layer general prediction", predicted_labels, prob)
+    # includes_swear, swear_count = check_profanity(text)
+    # print("[DEBUG] Swear detection: ", includes_swear, swear_count)
 
-    print("[DEBUG] Record Audio: ", audio_recorder(text))
-    print("[DEBUG] Dismiss AI: ", dismiss_ai(text))
-    print("[DEBUG] What time/day is it?: ", question_time(text))
-    print("[DEBUG] Play news?: ", play_news(text))
-    print("[DEBUG] Get weather info?: ", weather_query(text))
-    print("[DEBUG] Should set alarm?: ", set_alarm_reminder(text))
-    print("[DEBUG] Play music?: ", play_music(text))
-    print("[DEBUG] Should give randomized number?: ", random_intent(text))
-    if shopping_prob > prob:
-        return "Shopping; " + predict_shopping, shopping_prob
-    return predicted_labels[0], prob[0]
+    # print("Moving to regular skills")
+    # print("[DEBUG] Clear Swear detection: ", remove_swear_intent(text))
+    # print("[DEBUG] Schedule Meeting Detection: ", schedule_meeting_intent(text))
+    # print("[DEBUG] Latest Time up Detection: ", latest_time_up(text))
+
+    # print("[DEBUG] Record Audio: ", audio_recorder(text))
+    # print("[DEBUG] Dismiss AI: ", dismiss_ai(text))
+    # print("[DEBUG] What time/day is it?: ", question_time(text))
+    # print("[DEBUG] Play news?: ", play_news(text))
+    # print("[DEBUG] Get weather info?: ", weather_query(text))
+    # print("[DEBUG] Should set alarm?: ", set_alarm_reminder(text))
+    # print("[DEBUG] Play music?: ", play_music(text))
+    # print("[DEBUG] Should give randomized number?: ", random_intent(text))
+    # if shopping_prob > prob:
+    #     return "Shopping; " + predict_shopping, shopping_prob
+    # return predicted_labels[0], prob[0]
+
+    pass
 
 
 @main.route("/")

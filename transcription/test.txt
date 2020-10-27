@@ -1,0 +1,489 @@
+we are out of toilet paper paper towels and hand en atizer
+i finished the milk prorbreakfast as morning
+i all the chips last night when we were watching the movie
+i looks ak we're allmost out of sugar
+i need to run to the story to get some fruits
+i just ate the last apple
+we should get more milk because i finished drinking hot coca
+it looks like we need more avogetables
+i used to last on ionno make costa
+i want to resock our postaselection
+ahld go get al cado's to make homeacado toas
+probably need to get some sliced chees
+use the last slice of cheese on my sangwich
+y favorites herial cocoa puss
+i used the last egg on my the amlad
+we should get some more egs from cosco
+i'm going o buy some more oritists
+we need some alfrado sauce from a this poster
+m going to get broccoli for steaming
+i need some keywees for the meal prepate planto do this weekend
+can he get some hot docks from the store
+i need multiple clothes a garlic for this new postor a his feet i'm trying out
+should get some captus for the veggie resipe
+ojust finished the coffee so we need to get somemore
+i eat crabtonight
+i just finished the labster there's so wekan to go by someore
+e
+e
+in lear aco i si think divan should be very
+don'tknow
+maybe justancee the message
+ly
+so you got to chance to read the besign dark or not h t i not be
+project especilication
+cases
+the intermentation knont sdon't help tut much i think
+i i can go over to that quickly
+so here
+there isn't there's li
+to files a te really hafe to wodify
+but it's a that those two files mig have a lot of cases that we need a worry about
+should also check out like pull up the cok up high speck
+twhere most of the case s are
+pa
+pa
+just basically an extended version of what was there
+but with slightly different stuff i think that's
+there's new
+you kinds value type class type list typ funtype
+yes
+we se s th reference okay gish access share stren
+i wouldn't me turn tou hav
+too bad
+but the curve is just hat
+you should read the notes electr doesn't help
+for me
+is masure you read it because is anticalor practice test 'cause that one seys like
+you see anough examples
+it's not hard at all
+this is n so there's this a min casly in where yabout ear the symple table
+the table basically t's just like
+oit's a strange to thes val you or something
+like forscopes
+the one thing that's awared bout this is that
+only type base symbltable as's no actually like this scheme so
+there's also no aizer which is like
+for anawizing the notes
+like o ie student analizes ar ondeclaration analyzer or tape checker
+t checker gies errors whenever the type is off
+and then
+studentnces
+leve or a declaration afnalysis
+figres out in fer types and stuff
+e
+based on what iread i started adding like some sample
+inheritance
+that's in type tecker probably
+so e confuse on a different tween the two files
+alson e choke of
+do you there's also this weird sentac
+only noticed it
+recently in lecture
+is this intex we do e understand this
+so basically it's like saying if the top
+s a certain type
+and the bottom stuff should be that type
+so like fr example
+an object is a scientist circuntype
+and then
+first lement r that i tem is also that type
+and it's a or it's a subtype
+then we c infar of the type of it
+we have sympl tables here great which has a lake to the parent
+ea
+classes might be more painful
+but
+for example we could pretty easily do like if yeu look at the example
+anayzer
+heer gavacode with you
+juwhe just get pushed this stuff and lhen you could tull
+i jus i did make for aut or something trins out this a way to do this in intelligec
+recoit some i moved to tha
+on the outso posto
+how do yuse intelligec
+for me it's still ti don't know tha difference bween these two files declaration analyzer and type checker
+on ever at
+the's analysis in there's type checking to me theyeare the same
+asis is waining sset the inferre type
+they say you're not recoquired but it seems easier if we just
+tap off this
+more doing the homework would help first did y e a chance look through the lergebs
+a
+said he talks me
+hesee the same tax shows up here
+so
+might be a sul foreborty too
+oit works
+notes
+ik these notes
+yes static  also sigherct and actually read through this
+should righ cause it makes
+e
+stat the end of this es the end
+so looks like lecturicides are the only way
+i idnt read it
+seemed to attwork tidry through
+so e's  i think
+i dink the all jus have to watch lecure closely for the likes
+not ly i ever actually listened to hill inger e florin
+e
+we have to do each one of these dispatched ibelief
+all of these things like spression stateneeds we need to do in type checking
+we check that like oh if it's
+ake operation if it's an enteent
+than it should be an int
+ik here
+e end stran we set the infored type to be straing or sumblan a
+and you can't do
+o like
+ysdef lest tan
+ican
+e
+it's all hardcode
+it's going to be hard or spit it up
+last one
+thing most of it as they will to comby pace 'ecause they did it once
+thes one setis very like
+hardcody
+and let means a work ogs
+when we have to stop reading
+chok pe
+eowlast time it was like
+o
+a lot
+off the stuff is still in scope
+i think so
+are we san understand o thes sentax or expoverly
+we might be able to do this but this look super compligated
+the sentax
+this es the shows up here
+likveriable asign
+dot get it
+hopefully discussion loklear up one of go to discussion to moro morning
+e
+something  that should adgest as does it
+ten that's why i'm going
+i go to t er you can't we up ten to dere
+tenhirty oa co
+a
+i'm not sure how will break it up either
+it seems very interthen icted
+or we could do something like for one e to wbe as code life
+and we
+work of once system
+and we finish it off and like sut r something
+we could try it up
+s
+i can i  put uf working on this tol thersday then 'cause
+o pu too much effort and en
+we figure out we' gorn in the londirection or something
+we've been very in busy on thursday right
+his schedule is exact opposite of you
+he's also freat there'sa so u start ther isty
+kay so
+just that
+a
+each of hese shunks might be little
+complicated and
+tothe d
+so
+e
+i can do the simple ones maybe like start adding like stran type object type
+bee entype
+see if i can get far tilt there isay
+not
+the nalysis e or i think it's
+s infering what types it is
+wha types ot is but the type checker is giving errors when you get it
+it should be that
+it could be that declaration analyzers for setting the variables in the symbol table
+that's how therer thing that it was doing
+tuf like functions you have to put like te ariables byndings and stuff like that
+that could probably
+tenjoin a in a o se there's
+we're just making an e jason
+yes w have you seen the  actually
+sha my screen an show you the sample testa
+or if you hape of yo nave it to
+share my screen
+see this test
+tontreta
+sample
+something like this where you  a in fered t
+so that's the bigger frincid i add something like this
+ye
+house here
+two sixty two project
+wanto o something separate i could do the data flow stuff
+that seems independent of what you guys were doing
+s or if heu wanted to do it dati flo language and lites ar remember you
+independent of wher you guys are doing 'cause
+i wanted i w independent to a sense that i'm not doing your he
+not affecting your class
+yecause it felt tha weird ye
+this have access i don't think at getting i thin yet the meeting wi or stuff
+e
+i reach out to prolitra as send imanemail asking what theirfostuff
+mess th ati smassager
+if it's not related and
+i haven other meeting for friday
+out
+how i'll join the thursday one this week
+o
+a see thursdaynan
+h
+h
+e
+which the a
+well r
+e
+fin and then i was thinking if i should wave thaut i know the mobea before i start th next us hop wook
+the anwrws  t 'cause thet makes younifrcros
+ad to it
+lecomes marter
+e
+say
+ni thek thry unthree till
+lanch it up sian play
+lsin main manu
+ever
+e
+i got stuffed to doe a bunch of docars
+i sa i use wat shot i like a
+e
+exdevil looked stupid
+boxis
+but think it in doesn't make significant difference though with our skill level
+i didn't say that
+i started a match i we away for shed
+a next time
+yes
+i just got a text and he hat caveres
+o
+a at out me for a sec
+tick
+h
+onright now
+i on't know actually i'm otlistening andything
+denit
+call it
+aman oe
+heme
+comon in
+i  ont of be goods some blue car
+i
+ice
+iht ritic dota
+wel like three rapty women it's left
+for thi game
+it's a to
+ariol time
+nice
+o
+this
+no working the go
+is the rhythm bt stil plaing it's done right
+wy
+like that song so much
+youre going
+a you hear at the wrongly
+ness
+ice
+i ner gets of valy in the rioem by the can't hear anything
+kit you shut up i hat es a a men it before
+il come on
+the wone is here if the
+now i got it
+o i chat  in temands here we can sell
+e a capers ic
+i e me
+you start toe as
+on o alume of this cap
+i ma days of lom as ran played tiss that's why i becat i became cap 'cause of that
+car faltere plant the there persent game what to people
+egisl to game
+i leaving ono
+one
+e aically wone
+what
+t it a re bluerang ye i e thrieway
+i was thone who i towards there
+i was right what do you talking about
+it to be other tre
+some
+i our ra foris two seconds in
+left
+i can't dump at thing orgach
+n
+athatsoa
+to tiscort apen
+a he
+i
+is tis what says b youly
+it should be it's a ponteer et
+pl the soly times an so inoying
+ple o pleases just shoup
+noits  you okay we're done
+care
+i was don't ry about it
+im coming
+okay someone at rigt me
+i don i everybody
+ork
+eerybody
+except youe
+so left everybody else very of us arborogh
+joie party
+p having it
+ro
+ho just infie o you again
+youy
+custm game
+cre
+i d forbid en temple we like i was good
+yeah you wan rumember
+saitin
+all haemrs as win by a lot i don't i don't rember e scort
+why
+but we still want for in a row
+whee the beced yup sad
+nope
+t ca by be
+ad
+i no
+ol that go on no let go e
+now it happened there
+at nice
+ack
+th
+not for
+c
+yes some bo i's fal
+to you shat
+e
+he
+that's o be preg bay wetis i want an a ren into romon instead of the ball
+h
+heand stay
+ol time
+y
+points just up blocking the gulls
+now
+you are bout
+someone push it i can't
+s
+e
+funeating shad this time
+en
+no devit
+soid
+wy now i came
+ice i went a i went an jump oup shads an can't do anything
+ut and bi
+down the senter tem
+nit oer
+not nice but
+sry provid esy a tree times on that last fie licans
+what to ar no i block rons
+i thin for at
+can you skip it
+e
+and goting
+he
+but
+it's all part of the plan i'm going
+and stying you o ondy whats rushing
+ye
+look like shabowth going
+ice
+that
+i
+what
+som loving tough i kay
+way
+e now again
+show  that allbroh
+be alos
+wegardless we want
+wy
+wa ces that
+i think it's a random road iu don't even think of as an option
+but there might be stuffed that you don't like ano
+like ttherobeck stadium you i don't think you like it
+it's one rere like you  o behang the gol
+notlistening to the music
+join glue
+as gofer the twozer o victory
+saying back
+distracted by the music damna
+tis a strap
+i
+o irythinin
+e three times lot last ten seconds
+it
+you someone else go i'm staying back
+i hate this map in tis mapnow i think about it
+i just suck
+as  good attempt
+gon
+o push shad
+he
+i no i now
+a i ain for youron
+ait was just on accident
+wes the ball
+irgot to turn on bal tracking
+l i'mnoter dema
+n
+center ish
+hwow that was a great area
+this is carma
+o them ye bot time
+sing that
+t late on that
+i'm just flying
+nope now al xa o i i on the same points wit t
+e
+e
+he
+i'm going
+ionof gon there owol thanks a
+o nice
+i chat you good miss
+nope
+wile all ritually se that
+atit was bad
+he
+in the way
+nice oh shit who to peope blew up
+nice i thought that shat
+i'm always watching
+nice
+perfect ryt
+now
+you can still get it maybe
+whil shat gune so man arials in
+thatl how works
+two discected and en same music bot
+sby one
+but man met this
+cari guari li copwart sons
+guchl
+sad hurryup
+s many as yo want
+c a needed i neeted the music but
+bac
+think back
+nd hisaly rand of eting back
+well you
+lack
+te gane changi
+hatis
+how ot on thee have this go os by on tating
+ustra i just o ocky
+e
+problem
+hot
+soken
+metter meter
