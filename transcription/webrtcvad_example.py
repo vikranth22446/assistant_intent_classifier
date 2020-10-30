@@ -1,5 +1,6 @@
 import collections
 import contextlib
+import os
 import sys
 import wave
 
@@ -34,6 +35,7 @@ def write_wave(path, audio, sample_rate):
 
 class Frame(object):
     """Represents a "frame" of audio data."""
+
     def __init__(self, bytes, timestamp, duration):
         self.bytes = bytes
         self.timestamp = timestamp
@@ -126,6 +128,21 @@ def vad_collector(sample_rate, frame_duration_ms,
     # yield it.
     if voiced_frames:
         yield b''.join([f.bytes for f in voiced_frames])
+
+
+def create_chunks(vad_agg: int, wave_path: str, folder_name: str):
+    audio, sample_rate = read_wave(wave_path)
+    vad = webrtcvad.Vad(vad_agg)
+    frames = frame_generator(30, audio, sample_rate)
+    frames = list(frames)
+    segments = vad_collector(sample_rate, 30, 300, vad, frames)
+    full_paths = []
+    for i, segment in enumerate(segments):
+        path = 'chunk-%002d.wav' % (i,)
+        full_path = os.path.join(folder_name, path)
+        full_paths.append(full_path)
+        write_wave(full_path, segment, sample_rate)
+    return segments, full_paths
 
 
 def main(args):

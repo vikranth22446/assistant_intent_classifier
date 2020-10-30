@@ -1,0 +1,43 @@
+Started features model file loading ...
+Completed features model file loading elapsed time=16232 microseconds
+
+Started acoustic model file loading ...
+Completed acoustic model file loading elapsed time=3327 milliseconds
+
+Started tokens file loading ...
+Completed tokens file loading elapsed time=3577 microseconds
+
+Tokens loaded - 9998 tokens
+Started decoder options file loading ...
+Completed decoder options file loading elapsed time=1939 microseconds
+
+Started create decoder ...
+[Letters] 9998 tokens loaded.
+[Words] 200001 words loaded.
+Completed create decoder elapsed time=2011 milliseconds
+
+Started converting audio input from stdin to text... ...
+Creating LexiconDecoder instance.
+#start (msec), end(msec), transcription
+0,1000,
+1000,2000,
+2000,3000,we are out
+3000,4000,out of
+4000,5000,to paper he tells from pan
+5000,6000,
+6000,7000,i finished
+7000,8000,the box this morning
+8000,9000,i ate
+9000,10000,all trips last night
+10000,11000,when you are washing will be
+11000,12000,it
+12000,13000,looks like we're almost on a figure
+13000,14000,
+14000,15000,i need your and the story and get
+15000,16000,some fruits
+16000,17000,i just think the last
+17000,18000,apple
+18000,19000,we should get more milk
+19000,20000,said in a drinking
+20000,20000,
+Completed converting audio input from stdin to text... elapsed time=2884 milliseconds
