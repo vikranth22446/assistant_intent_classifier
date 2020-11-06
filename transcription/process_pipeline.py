@@ -180,9 +180,9 @@ def process_pipeline(recordings_folder, transcription_folder, transcription_mode
         process_pipeline_entry(file, transcription_folder, transcription_model)
 
 
-def process_sample_meatwad(camera_num, date,start_segment,end_segment):
+def process_sample_meatwad(folder_path, camera_num, date,start_segment,end_segment):
     for i in range(start_segment, end_segment):
-        path = f"/home/vadata/bro_data/Camera{camera_num}{date}segment{i}.ts"
+        path = f"{folder_path}/Camera{camera_num}{date}segment{i}.ts"
         process_pipeline_entry(path, "bro_data_transcriptions/",
                                Wav2LetterTranscription(use_vad=True))
         process_pipeline_entry(path, "bro_data_transcriptions/",
@@ -212,4 +212,4 @@ if __name__ == '__main__':
 
     # process_pipeline_entry("Camera3Date071819segment156348474.ts", "test_transcription/",
     #                        Wav2LetterTranscription(use_vad=True))
-    process_sample_meatwad(camera_num=3, date="070119",start_segment=156196792, end_segment=156205142)
+    process_sample_meatwad(folder_path="/home/vadata/bro_data/", camera_num=3, date="070119",start_segment=156196792, end_segment=156205142)
