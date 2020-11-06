@@ -20,9 +20,11 @@ from webrtcvad_example import create_chunks
 
 class Transcription(ABC):
     model_name = "default"
-    use_vad = False
 
-    @abstractmethod
+    def __init__(self):
+        self.use_vad = False
+
+    # @abstractmethod
     def transcript(self, wave_path: str) -> str:
         pass
 
@@ -32,9 +34,11 @@ class Transcription(ABC):
             results.append(self.transcript(wave_path))
         if save_results_dir is not None:
             f_name, f_ext = os.path.splitext(os.path.basename(recording_path))
+            uses_vad = "_with_vad" if self.use_vad else ""
+            save_results_dir = os.path.join(save_results_dir, self.model_name + uses_vad)
             if not os.path.exists(save_results_dir):
-                os.mkdir(save_results_dir)
-            full_path = os.path.join(save_results_dir, f_name + self.model_name + ".txt")
+                os.makedirs(save_results_dir)
+            full_path = os.path.join(save_results_dir, f_name + ".txt")
             print("Writing transcript to ", full_path)
             with open(full_path, 'w') as f:
                 f.write("\n".join(results))
@@ -43,10 +47,10 @@ class Transcription(ABC):
 
 class DeepspeechTranscription(Transcription):
     model_name = "DeepSpeech"
-    use_vad = True
 
-    def __init__(self, model_dir="deepspeech-0.7.3-models"):
+    def __init__(self, model_dir="deepspeech-0.7.3-models", use_vad=True):
         super().__init__()
+        self.use_vad = use_vad
         self.model_path = os.path.join(model_dir, 'deepspeech-0.7.3-models.pbmm')
         self.model = deepspeech.Model(self.model_path)
 
@@ -60,6 +64,7 @@ class DeepspeechTranscription(Transcription):
         frames = w.getnframes()
         buffer = w.readframes(frames)
         if rate != self.model.sampleRate():
+            print(rate)
             print("WARNING!: The sample rate of the wav is different than model sample rate")
         data16 = np.frombuffer(buffer, dtype=np.int16)
         text = self.model.stt(data16)
@@ -70,22 +75,24 @@ class DeepspeechTranscription(Transcription):
 
 class Wav2LetterTranscription(Transcription):
     model_name = "Wav2Letter"
-    use_vad = False
+
+    def __init__(self, use_vad=False):
+        super().__init__()
+        self.use_vad = use_vad
 
     def profile_docker_mem_usage(self, proc):
         SLICE_IN_SECONDS = 3
         while proc.poll() is None:
             p = psutil.Process(proc.pid)
-            mem_status = "RSS {},  VMS: {}".format(humanfriendly.format_size(p.memory_info().rss),
-                                                   humanfriendly.format_size(p.memory_info().vms))
+            # mem_status = "Mem used: {}".format(humanfriendly.format(p.memory_percent()))
             time.sleep(SLICE_IN_SECONDS)
-            print(mem_status)
+            # print(mem_status)
 
     def transcript(self, wave_path: str) -> str:
         # process wave frame by frame at a sample rate
         # run through the docker
         # parse the docker output
-        print(f"Running transcript on {wave_path}")
+        print(f"Running transcript on {wave_path} with vad: {self.use_vad}")
         volume_mount_dir = "$PWD"
         wav2_letter_model_path = 'wav2lettermodel'
         # Handle synchronously on purpose
@@ -94,18 +101,17 @@ class Wav2LetterTranscription(Transcription):
         start = time.time()
 
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-
         self.profile_docker_mem_usage(proc)
+        read_lines = proc.stdout.readlines()
+
         end = time.time()
         print("Time Elapsed:", humanfriendly.format_timespan(end - start))
-
-        read_lines = proc.stdout.readlines()
         # parsing can also be done via | awk -F, '{print $3}' but didn't want to loose timing information if needed in the future
         result = []
         for line in read_lines:
             if match := re.search(r'\d+,\d+,(.*)', line.decode("utf-8")):
                 result.append(match.group(1))
-
+        print('\n'.join(result))
         return '\n'.join(result)
 
 
@@ -122,6 +128,7 @@ class VadDetector:
             print("Warning: Invalid wav file at ", wave_path)
             print(e)
             return []
+        print("chunk recording")
         # added segment since its possible to direct pass it through
         return full_paths
 
@@ -133,15 +140,53 @@ def find_wav_files(dir_path: str) -> List[str]:
         wav_files.append(file)
     return wav_files
 
-def process_pipeline(recordings_folder, transcription_folder, transcriptionModel: Transcription):
+
+def convert_channel_sample_rate(file_name, channel_size=1, sample_rate=16000):
+    f_name, f_ext = os.path.splitext(file_name)
+    if f_ext != ".wav":
+        new_path = f_name + ".wav"
+        proc = subprocess.Popen(f"ffmpeg -y -i {file_name} -vn {new_path}", stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, shell=True).wait()
+        final_path = f_name + "_channel_1_16000" + ".wav"
+        proc = subprocess.Popen(f"sox {new_path} -c {channel_size} -r {sample_rate} {final_path}", stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, shell=True).wait()
+        return final_path
+
+    w = wave.open(file_name, 'r')
+    rate = w.getframerate()
+    wave_num_channels = w.getnchannels()
+    print("Current rate", rate, "Num channels", wave_num_channels)
+    if rate != sample_rate or wave_num_channels != channel_size:
+        new_path = f_name + "_channel_1_16000" + ".wav"
+        proc = subprocess.Popen(f"sox {file_name} -c {channel_size} -r {sample_rate} {new_path}", stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, shell=True)
+        proc.wait()
+        file_name = new_path
+    return file_name
+
+
+def process_pipeline_entry(recording_name: str, transcription_folder: str, transcription_model: Transcription):
+    recording_name = convert_channel_sample_rate(recording_name)
+    if transcription_model.use_vad:
+        transcriptions = VadDetector().chunk_recording(recording_name, None)
+    else:
+        transcriptions = [recording_name]
+    result = transcription_model.transcript_all(transcriptions, recording_name, transcription_folder)
+    print("\n".join(result))
+
+
+def process_pipeline(recordings_folder, transcription_folder, transcription_model: Transcription):
     for file in find_wav_files(recordings_folder):
-        recording_name = file
-        if transcriptionModel.use_vad:
-            transcriptions = VadDetector().chunk_recording(recording_name, None)
-        else:
-            transcriptions = [recording_name]
-        result = transcriptionModel.transcript_all(transcriptions, recording_name, transcription_folder)
-        print("\n".join(result))
+        process_pipeline_entry(file, transcription_folder, transcription_model)
+
+
+def process_sample_meatwad(camera_num, date,start_segment,end_segment):
+    for i in range(start_segment, end_segment):
+        path = f"/home/vadata/bro_data/Camera{camera_num}{date}segment{i}.ts"
+        process_pipeline_entry(path, "bro_data_transcriptions/",
+                               Wav2LetterTranscription(use_vad=True))
+        process_pipeline_entry(path, "bro_data_transcriptions/",
+                               Wav2LetterTranscription(use_vad=False))
 
 # Finish everything
 # -> apply noise filter on each chunk
@@ -156,13 +201,15 @@ def process_pipeline(recordings_folder, transcription_folder, transcriptionModel
 @click.option('-transcription_folder')
 def cli(recordings_folder, transcription_folder):
     """Simple program that greets NAME for a total of COUNT times."""
-    process_pipeline(recordings_folder, transcription_folder, Wav2LetterTranscription())
+    process_pipeline(recordings_folder, transcription_folder, Wav2LetterTranscription(use_vad=False))
 
 
 if __name__ == '__main__':
-    recordings_folder = "samples/"
-    transcript_folder = "samples/transcripts/"
-    process_pipeline(recordings_folder, transcript_folder, Wav2LetterTranscription())
+    # recordings_folder = "samples_v2/"
+    # transcript_folder = "samples_v2/transcripts/"
+    #     process_pipeline(recordings_folder, transcript_folder, Wav2LetterTranscription(use_vad=False))
+    #     process_pipeline(recordings_folder, transcript_folder, DeepspeechTranscription(use_vad=True))
 
-# sudo docker run --rm -v $PWD:/root/host/ -it --ipc=host --name w2l -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest sh -c "cat /root/host/samples/recording1.wav | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/wav2lettermodel"
-# awk -F, '{print $3}'
+    # process_pipeline_entry("Camera3Date071819segment156348474.ts", "test_transcription/",
+    #                        Wav2LetterTranscription(use_vad=True))
+    process_sample_meatwad(camera_num=3, date="070119",start_segment=156196792, end_segment=156205142)
