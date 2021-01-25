@@ -25,14 +25,14 @@ def classify_file(skills, file):
             if text:
                 classify_text(skills, text)
 
-def classify_audio_file(skills, audio_file, transcription_model: Transcription):
-    with tempfile.TemporaryDirectory() as dirpath:
-        transcript_file = process_pipeline_entry(
-            audio_file,
-            dirpath,
-            transcription_model,
-        )
-        classify_file(skills, transcript_file)
+# def classify_audio_file(skills, audio_file, transcription_model: Transcription):
+#     with tempfile.TemporaryDirectory() as dirpath:
+#         transcript_file = process_pipeline_entry(
+#             audio_file,
+#             dirpath,
+#             transcription_model,
+#         )
+#         classify_file(skills, transcript_file)
     
 @click.command()
 @click.option("--text", default=None, help="Run classification on provided text")
@@ -44,13 +44,13 @@ def cli(ctx, text, audio_path):
 
     if text:
         classify_text(skills, text)
-    if audio_path:
-        classify_audio_file(skills, audio_path, DeepspeechTranscription())
+    # if audio_path:
+    #     classify_audio_file(skills, audio_path, DeepspeechTranscription())
 
 if __name__ == "__main__":
     # cli()
-    skills = [ShoppingSkill(), GeneralClassifierSkill(), RecordingSkill()]
-    # classify_text(skills, "We ran out of watermelons")
-    classify_audio_file(skills, "save_audio/savewav_2020-09-09_19-04-59_750112.wav", Wav2LetterTranscription())
+    skills = [ShoppingSkill(), GeneralClassifierSkill()]
+    classify_text(skills, "We ran out of watermelons")
+    # classify_audio_file(skills, "save_audio/savewav_2020-09-09_19-04-59_750112.wav", Wav2LetterTranscription())
     # general_classifier = GeneralClassifierSkill()
     # print(general_classifier.classify("Weather is nice outside"))
