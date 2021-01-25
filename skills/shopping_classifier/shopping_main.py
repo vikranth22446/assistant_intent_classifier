@@ -294,13 +294,14 @@ def get_doc2vec(text, model, verbose=False):
 def find_shopping_item(text):
     model = torch.load(PATH + "infraset_model.torch")
     model.eval()
-    label_encoder = pickle.load( open(PATH + "label_encoding.pkl", "rb"))
+    label_encoder = pickle.load(open(PATH + "label_encoding.pkl", "rb"))
 
     def get_labels_decoded(arr):
         return label_encoder.inverse_transform(arr)
-    
+
     def cosine(u, v):
         return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
+
     print(PATH + "ffcc_keras_model")
     ffcc = tf.keras.models.load_model(PATH + "ffcc_keras_model", compile=False)
 
@@ -385,18 +386,18 @@ if __name__ == "__main__":
     # import codecs
     # UTF8Reader = codecs.getreader('utf8')
     # sys.stdin = UTF8Reader(sys.stdin)
-    
-    res = find_shopping_item("what's for dinner")
+
+    res = find_shopping_item("We ran out of watermelons")
     print(res)
     # for line in sys.stdin:
-        # print(line.strip())
-        # # print(everything("I ran out of broccoli"))
-        # theStr = find_shopping_item(line.strip())
-        # print("---------------------------")
-        # print("---------------------------")
-        # print("---------------------------")
-        # print("---------------------------")
-        # print("---------------------------")
-        # print("---------------------------")
-        # print("Classification and confidence level of the phrase's classification:")
-        # print(theStr)
+    # print(line.strip())
+    # # print(everything("I ran out of broccoli"))
+    # theStr = find_shopping_item(line.strip())
+    # print("---------------------------")
+    # print("---------------------------")
+    # print("---------------------------")
+    # print("---------------------------")
+    # print("---------------------------")
+    # print("---------------------------")
+    # print("Classification and confidence level of the phrase's classification:")
+    # print(theStr)
