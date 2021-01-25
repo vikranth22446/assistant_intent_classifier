@@ -59,10 +59,6 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///smart-assistant-db.db"
 
 
-# Start 3:31:50
-# 3:39
-
-
 class ProductionConfig(Config):
     """
     Production Configurations
