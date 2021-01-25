@@ -1,6 +1,6 @@
-from skills.basic_commands.basic_commands_skills import RecordingSkill
+#from skills.basic_commands.basic_commands_skills import RecordingSkill
 import tempfile
-from transcription.process_pipeline import DeepspeechTranscription, Transcription, Wav2LetterTranscription, process_pipeline_entry
+#from transcription.process_pipeline import DeepspeechTranscription, Transcription, Wav2LetterTranscription, process_pipeline_entry
 from skills.general_classifier.general_classifier import GeneralClassifierSkill
 from skills.shopping_classifier.shopping_skill import ShoppingSkill
 import click
