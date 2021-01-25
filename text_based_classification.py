@@ -6,6 +6,8 @@ from skills.shopping_classifier.shopping_skill import ShoppingSkill
 import click
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # cleanup error message items
+# humanfriendly, click, padatious, psutil, memory_profiler, gdown, paramiko
+
 
 skills = [GeneralClassifierSkill(), ShoppingSkill()]
 
@@ -47,7 +49,7 @@ def cli(ctx, text, audio_path):
 
 if __name__ == "__main__":
     # cli()
-    skills = [ShoppingSkill()]
+    skills = [ShoppingSkill(), GeneralClassifierSkill(), RecordingSkill()]
     # classify_text(skills, "We ran out of watermelons")
     classify_audio_file(skills, "save_audio/savewav_2020-09-09_19-04-59_750112.wav", Wav2LetterTranscription())
     # general_classifier = GeneralClassifierSkill()
