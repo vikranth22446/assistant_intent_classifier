@@ -35,6 +35,9 @@ To get the models required to run, download the two model files at https://drive
 and insert them into the skills folder.
 - TODO simplify this process
 
+The audio files that need to be processed should be placed inside the transcription/ folder currently(to support volume mounts within docker). 
+ - TODO this will be updated later to allow for any path. 
+
 ## Architecture Documentation
 One Architecture Diagram: https://people.eecs.berkeley.edu/~nmalkin/alva/architecture
 
