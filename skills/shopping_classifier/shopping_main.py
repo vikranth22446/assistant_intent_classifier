@@ -21,7 +21,7 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-from models import InferSent
+from .models import InferSent
 
 np.random.seed(3252)
 PATH = (os.path.dirname(os.path.abspath(__file__))) + "/"
@@ -292,6 +292,8 @@ def get_doc2vec(text, model, verbose=False):
 
 
 def find_shopping_item(text):
+    # TODO rewrite code to just find shopping item
+    # TODO code is also difficult to read
     model = torch.load(PATH + "infraset_model.torch")
     model.eval()
     label_encoder = pickle.load(open(PATH + "label_encoding.pkl", "rb"))
@@ -302,13 +304,11 @@ def find_shopping_item(text):
     def cosine(u, v):
         return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
 
-    print(PATH + "ffcc_keras_model")
     ffcc = tf.keras.models.load_model(PATH + "ffcc_keras_model", compile=False)
 
     # train_accuracy_without_oos, train_classifications_without_oos = calculate_accuracy(ffcc, X_train_vec, y_train, with_oos=False)
     # print("Train Accuracy Without OOS", train_accuracy_without_oos)
     def quick_predict_label(infraset_model, classification_model, text, cutoff=0.0):
-        print(text)
         X = get_doc2vec([text], infraset_model)
         predictions = classification_model.predict(X)
         predicted_labels = get_labels_decoded(
@@ -324,7 +324,6 @@ def find_shopping_item(text):
     pred, probs = quick_predict_label(model, ffcc, text, cutoff=0.7)
     results.append({"text": text, "pred": pred[0]})
 
-    print(pred)
     if pred[0] == "oos":
         return pred[0], probs
 
@@ -362,7 +361,6 @@ def find_shopping_item(text):
                         listitem = testsite_array[i]
                         if not listitem:
                             continue
-                        print(listitem)
                         cosSim = cosine(
                             model.encode(["grocery item"])[0],
                             model.encode([listitem])[0],
@@ -374,7 +372,8 @@ def find_shopping_item(text):
                             target.write("%s" % listitem)
                     target.close()
             prev = (word, word.dep_)
-    return pred[0], probs[0]
+    predicted_item = testsite_array[0]
+    return pred[0], probs[0], predicted_item
 
 
 if __name__ == "__main__":

@@ -55,6 +55,8 @@ class RunConfig:
 
 
 class Skill(ABC):
+    skill_name = None
+    
     def __init__(self, run_config, model_files_download_paths=None, model_folder=None):
         if model_files_download_paths is None:
             model_files_download_paths = []

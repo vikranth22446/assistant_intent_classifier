@@ -2,21 +2,28 @@
 import pickle
 from skills.skill_utils import Skill
 import tensorflow as tf
-from numpy import np
+import numpy as np
 import torch
 from skills.shopping_classifier.shopping_main import find_shopping_item
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class ShoppingSkill(Skill):
+    skill_name = "Shopping"
     model_name = "ffcc_keras_model"
     label_encoder_name = "label_encoding.pkl"
     infraset_model_name = "infraset_model.torch"
 
     def __init__(self):
-        super().__init__()
-        self.ffcc = tf.keras.models.load_model(self.model_name)
-        self.label_encoder = pickle.load(open(self.label_encoder_name, 'rb'))
-        self.infraset_model = torch.load(self.infraset_model_name)
+        # super().__init__()
+        self.ffcc = tf.keras.models.load_model(os.path.join(basedir,self.model_name), compile = False)
+        self.label_encoder = pickle.load(open(os.path.join(basedir, self.label_encoder_name), 'rb'))
+        self.infraset_model = torch.load(os.path.join(basedir, self.infraset_model_name))
         self.infraset_model.eval()
+   
+    def init_models(self):
+        pass
 
     def classify(self, text, cutoff=0.0):
         X = self.get_doc2vec([text])
@@ -38,6 +45,3 @@ class ShoppingSkill(Skill):
         return find_shopping_item(text)
 
 
-if __name__ == "__main__":
-    shopping_skill = ShoppingSkill()
-    print(shopping_skill.classify("We ran out of watermelons"))

@@ -15,7 +15,10 @@ import deepspeech
 import numpy as np
 import glob
 
-from webrtcvad_example import create_chunks
+from tensorflow.python.training.tracking import base
+
+from .webrtcvad_example import create_chunks
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Transcription(ABC):
@@ -58,7 +61,7 @@ class DeepspeechTranscription(Transcription):
     def __init__(self, model_dir="deepspeech-0.7.3-models", use_vad=True):
         super().__init__()
         self.use_vad = use_vad
-        self.model_path = os.path.join(model_dir, "deepspeech-0.7.3-models.pbmm")
+        self.model_path = os.path.join(basedir, model_dir, "deepspeech-0.7.3-models.pbmm")
         self.model = deepspeech.Model(self.model_path)
 
     # @profile
@@ -98,11 +101,14 @@ class Wav2LetterTranscription(Transcription):
             # print(mem_status)
 
     def transcript(self, wave_path: str) -> str:
+        """
         # process wave frame by frame at a sample rate
         # run through the docker
         # parse the docker output
+        """
         print(f"Running transcript on {wave_path} with vad: {self.use_vad}")
-        volume_mount_dir = "$PWD"
+        # volume_mount_dir = "$PWD"
+        volume_mount_dir = basedir
         wav2_letter_model_path = "wav2lettermodel"
         # Handle synchronously on purpose
 
@@ -196,6 +202,13 @@ def convert_channel_sample_rate(file_name, channel_size=1, sample_rate=16000):
         file_name = new_path
     return file_name
 
+def get_transcript_full_path(recording_name: str, transcription_folder: str, transcription_model: Transcription):
+    # TODO remove duplication by combining this with other process
+    uses_vad = "_with_vad" if transcription_model.use_vad else ""
+    f_name, f_ext = os.path.splitext(os.path.basename(recording_name))
+    save_results_dir = os.path.join(transcription_folder, transcription_model.model_name + uses_vad)
+    full_path = os.path.join(save_results_dir, f_name + ".txt")
+    return full_path
 
 def process_pipeline_entry(
     recording_name: str, transcription_folder: str, transcription_model: Transcription
@@ -209,7 +222,7 @@ def process_pipeline_entry(
         transcriptions, recording_name, transcription_folder
     )
     print("\n".join(result))
-
+    return get_transcript_full_path(recording_name, transcription_folder, transcription_model)
 
 def process_pipeline(
     recordings_folder, transcription_folder, transcription_model: Transcription
