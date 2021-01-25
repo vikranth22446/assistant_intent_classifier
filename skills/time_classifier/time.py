@@ -13,17 +13,17 @@ def schedule_meeting_intent(text, oos=[]):
             "I have a {what} at {time} on {day}.",
             "I have a {what} at {time}.",
             "My meeting is at {time}",
-            "We have to be there at {time}"
+            "We have to be there at {time}",
         ],
     )
     container1.train()
     res = container.calc_intent(text)
     prob = res.conf
     name = res.name
-    if name == 'sched':
+    if name == "sched":
         print("Registering meeting with ", res.matches)
     if prob < 0.7:
-        name = 'oos'
+        name = "oos"
     return name, prob
 
 
@@ -38,8 +38,8 @@ def latest_time_up(text, oos=[]):
     res = container.calc_intent(text)
     prob = res.conf
     name = res.name
-    if name == 'howlate':
+    if name == "howlate":
         print("Finding How late last command", res.matches)
     if prob < 0.7:
-        name = 'oos'
+        name = "oos"
     return name, prob
