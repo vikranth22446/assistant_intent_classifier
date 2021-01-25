@@ -28,19 +28,26 @@ class Transcription(ABC):
     def transcript(self, wave_path: str) -> str:
         pass
 
-    def transcript_all(self, wave_paths: List[str], recording_path: Optional[str], save_results_dir: str) -> List[str]:
+    def transcript_all(
+        self,
+        wave_paths: List[str],
+        recording_path: Optional[str],
+        save_results_dir: str,
+    ) -> List[str]:
         results = []
         for wave_path in wave_paths:
             results.append(self.transcript(wave_path))
         if save_results_dir is not None:
             f_name, f_ext = os.path.splitext(os.path.basename(recording_path))
             uses_vad = "_with_vad" if self.use_vad else ""
-            save_results_dir = os.path.join(save_results_dir, self.model_name + uses_vad)
+            save_results_dir = os.path.join(
+                save_results_dir, self.model_name + uses_vad
+            )
             if not os.path.exists(save_results_dir):
                 os.makedirs(save_results_dir)
             full_path = os.path.join(save_results_dir, f_name + ".txt")
             print("Writing transcript to ", full_path)
-            with open(full_path, 'w') as f:
+            with open(full_path, "w") as f:
                 f.write("\n".join(results))
         return results
 
@@ -51,7 +58,7 @@ class DeepspeechTranscription(Transcription):
     def __init__(self, model_dir="deepspeech-0.7.3-models", use_vad=True):
         super().__init__()
         self.use_vad = use_vad
-        self.model_path = os.path.join(model_dir, 'deepspeech-0.7.3-models.pbmm')
+        self.model_path = os.path.join(model_dir, "deepspeech-0.7.3-models.pbmm")
         self.model = deepspeech.Model(self.model_path)
 
     # @profile
@@ -59,13 +66,15 @@ class DeepspeechTranscription(Transcription):
         # We have the code for this. We split wav file into frames
         print(f"Running transcript on {wave_path}")
         start = time.time()
-        w = wave.open(wave_path, 'r')
+        w = wave.open(wave_path, "r")
         rate = w.getframerate()
         frames = w.getnframes()
         buffer = w.readframes(frames)
         if rate != self.model.sampleRate():
             print(rate)
-            print("WARNING!: The sample rate of the wav is different than model sample rate")
+            print(
+                "WARNING!: The sample rate of the wav is different than model sample rate"
+            )
         data16 = np.frombuffer(buffer, dtype=np.int16)
         text = self.model.stt(data16)
         end = time.time()
@@ -94,13 +103,15 @@ class Wav2LetterTranscription(Transcription):
         # parse the docker output
         print(f"Running transcript on {wave_path} with vad: {self.use_vad}")
         volume_mount_dir = "$PWD"
-        wav2_letter_model_path = 'wav2lettermodel'
+        wav2_letter_model_path = "wav2lettermodel"
         # Handle synchronously on purpose
 
         cmd = f"""docker run --rm -v {volume_mount_dir}:/root/host/ -i --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest sh -c 'cat /root/host/{wave_path} | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/{wav2_letter_model_path}'"""
         start = time.time()
 
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
+        )
         self.profile_docker_mem_usage(proc)
         read_lines = proc.stdout.readlines()
 
@@ -109,21 +120,26 @@ class Wav2LetterTranscription(Transcription):
         # parsing can also be done via | awk -F, '{print $3}' but didn't want to loose timing information if needed in the future
         result = []
         for line in read_lines:
-            if match := re.search(r'\d+,\d+,(.*)', line.decode("utf-8")):
+            if match := re.search(r"\d+,\d+,(.*)", line.decode("utf-8")):
                 result.append(match.group(1))
-        print('\n'.join(result))
-        return '\n'.join(result)
+        print("\n".join(result))
+        return "\n".join(result)
+
 
 
 class VadDetector:
-    def chunk_recording(self, wave_path: str, chunk_folder_name: Optional[str]) -> List[str]:
+    def chunk_recording(
+        self, wave_path: str, chunk_folder_name: Optional[str]
+    ) -> List[str]:
         if chunk_folder_name is None:
             chunk_folder_name = wave_path + "_chunks"
         if os.path.exists(chunk_folder_name):
             shutil.rmtree(chunk_folder_name)
         os.mkdir(chunk_folder_name)
         try:
-            segments, full_paths = create_chunks(vad_agg=1, wave_path=wave_path, folder_name=chunk_folder_name)
+            segments, full_paths = create_chunks(
+                vad_agg=1, wave_path=wave_path, folder_name=chunk_folder_name
+            )
         except Exception as e:
             print("Warning: Invalid wav file at ", wave_path)
             print(e)
@@ -133,10 +149,12 @@ class VadDetector:
         return full_paths
 
 
-def find_wav_files(dir_path: str) -> List[str]:
-    print(f"Searching ", os.path.join(dir_path, "*.wav"))
+def find_wav_and_ts_files(dir_path: str) -> List[str]:
+    print(f"Searching ", os.path.join(dir_path, "*.ts/.wav"))
     wav_files = []
     for file in glob.glob(os.path.join(dir_path, "*.wav"), recursive=False):
+        wav_files.append(file)
+    for file in glob.glob(os.path.join(dir_path, "*.ts"), recursive=False):
         wav_files.append(file)
     return wav_files
 
@@ -145,71 +163,80 @@ def convert_channel_sample_rate(file_name, channel_size=1, sample_rate=16000):
     f_name, f_ext = os.path.splitext(file_name)
     if f_ext != ".wav":
         new_path = f_name + ".wav"
-        proc = subprocess.Popen(f"ffmpeg -y -i {file_name} -vn {new_path}", stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, shell=True).wait()
+        if not os.path.exists(new_path):
+            proc = subprocess.Popen(
+                f"ffmpeg -y -i {file_name} -vn {new_path}",
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                shell=True,
+            ).wait()
         final_path = f_name + "_channel_1_16000" + ".wav"
-        proc = subprocess.Popen(f"sox {new_path} -c {channel_size} -r {sample_rate} {final_path}", stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, shell=True).wait()
+        if not os.path.exists(final_path):
+            proc = subprocess.Popen(
+                f"sox {new_path} -c {channel_size} -r {sample_rate} {final_path}",
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                shell=True,
+            ).wait()
         return final_path
 
-    w = wave.open(file_name, 'r')
+    w = wave.open(file_name, "r")
     rate = w.getframerate()
     wave_num_channels = w.getnchannels()
     print("Current rate", rate, "Num channels", wave_num_channels)
     if rate != sample_rate or wave_num_channels != channel_size:
         new_path = f_name + "_channel_1_16000" + ".wav"
-        proc = subprocess.Popen(f"sox {file_name} -c {channel_size} -r {sample_rate} {new_path}", stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(
+            f"sox {file_name} -c {channel_size} -r {sample_rate} {new_path}",
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
         proc.wait()
         file_name = new_path
     return file_name
 
 
-def process_pipeline_entry(recording_name: str, transcription_folder: str, transcription_model: Transcription):
+def process_pipeline_entry(
+    recording_name: str, transcription_folder: str, transcription_model: Transcription
+):
     recording_name = convert_channel_sample_rate(recording_name)
     if transcription_model.use_vad:
         transcriptions = VadDetector().chunk_recording(recording_name, None)
     else:
         transcriptions = [recording_name]
-    result = transcription_model.transcript_all(transcriptions, recording_name, transcription_folder)
+    result = transcription_model.transcript_all(
+        transcriptions, recording_name, transcription_folder
+    )
     print("\n".join(result))
 
 
-def process_pipeline(recordings_folder, transcription_folder, transcription_model: Transcription):
-    for file in find_wav_files(recordings_folder):
+def process_pipeline(
+    recordings_folder, transcription_folder, transcription_model: Transcription
+):
+    for file in find_wav_and_ts_files(recordings_folder):
         process_pipeline_entry(file, transcription_folder, transcription_model)
 
-
-def process_sample_meatwad(folder_path, camera_num, date,start_segment,end_segment):
-    for i in range(start_segment, end_segment):
-        path = f"{folder_path}/Camera{camera_num}{date}segment{i}.ts"
-        process_pipeline_entry(path, "bro_data_transcriptions/",
-                               Wav2LetterTranscription(use_vad=True))
-        process_pipeline_entry(path, "bro_data_transcriptions/",
-                               Wav2LetterTranscription(use_vad=False))
 
 # Finish everything
 # -> apply noise filter on each chunk
 # -> Integrate shopping skill (next week)
 
-# Non Coding Tasks
-# Collect a sample of audio clips from meatwad
-# Record more samples of audio clips saying the shopping sentences and save to drive
-
 @click.command()
-@click.option('-recordings_folder')
-@click.option('-transcription_folder')
+@click.option("-recordings_folder")
+@click.option("-transcription_folder")
 def cli(recordings_folder, transcription_folder):
     """Simple program that greets NAME for a total of COUNT times."""
-    process_pipeline(recordings_folder, transcription_folder, Wav2LetterTranscription(use_vad=False))
+    process_pipeline(
+        recordings_folder, transcription_folder, Wav2LetterTranscription(use_vad=False)
+    )
 
 
-if __name__ == '__main__':
-    # recordings_folder = "samples_v2/"
-    # transcript_folder = "samples_v2/transcripts/"
-    #     process_pipeline(recordings_folder, transcript_folder, Wav2LetterTranscription(use_vad=False))
-    #     process_pipeline(recordings_folder, transcript_folder, DeepspeechTranscription(use_vad=True))
-
-    # process_pipeline_entry("Camera3Date071819segment156348474.ts", "test_transcription/",
-    #                        Wav2LetterTranscription(use_vad=True))
-    process_sample_meatwad(folder_path="/home/vadata/bro_data/", camera_num=3, date="070119",start_segment=156196792, end_segment=156205142)
+if __name__ == "__main__":
+    recordings_folder = "wetransfer-b86082/"
+    # process_pipeline_entry("test.wav", "test_transcript", Wav2LetterTranscription())
+    process_pipeline_entry(
+        "savewav_2020-09-09_20-33-18_538986.wav",
+        "test_transcript",
+        DeepspeechTranscription(),
+    )

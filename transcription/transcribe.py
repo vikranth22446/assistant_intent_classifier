@@ -13,7 +13,7 @@ import json
 import click
 import os
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Disables Tf warnings
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # Disables Tf warnings
 log = logging.getLogger(__name__)
 DEFAULT_SAMPLE_RATE = 16000
 
@@ -35,7 +35,8 @@ class Audio(object):
             callback(in_data)
             return (None, pyaudio.paContinue)
 
-        if callback is None: callback = lambda in_data: self.buffer_queue.put(in_data)
+        if callback is None:
+            callback = lambda in_data: self.buffer_queue.put(in_data)
         self.buffer_queue = queue.Queue()
         self.device = device
         self.input_rate = input_rate
@@ -45,21 +46,21 @@ class Audio(object):
         self.pa = pyaudio.PyAudio()
 
         kwargs = {
-            'format': self.FORMAT,
-            'channels': self.CHANNELS,
-            'rate': self.input_rate,
-            'input': True,
-            'frames_per_buffer': self.block_size_input,
-            'stream_callback': proxy_callback,
+            "format": self.FORMAT,
+            "channels": self.CHANNELS,
+            "rate": self.input_rate,
+            "input": True,
+            "frames_per_buffer": self.block_size_input,
+            "stream_callback": proxy_callback,
         }
 
         self.chunk = None
         # if not default device
         if self.device:
-            kwargs['input_device_index'] = self.device
+            kwargs["input_device_index"] = self.device
         elif file is not None:
             self.chunk = 320
-            self.wf = wave.open(file, 'rb')
+            self.wf = wave.open(file, "rb")
 
         self.stream = self.pa.open(**kwargs)
         self.stream.start_stream()
@@ -81,8 +82,7 @@ class Audio(object):
 
     def read_resampled(self):
         """Return a block of audio data resampled to 16000hz, blocking if necessary."""
-        return self.resample(data=self.buffer_queue.get(),
-                             input_rate=self.input_rate)
+        return self.resample(data=self.buffer_queue.get(), input_rate=self.input_rate)
 
     def read(self):
         """Return a block of audio data, blocking if necessary."""
@@ -93,11 +93,13 @@ class Audio(object):
         self.stream.close()
         self.pa.terminate()
 
-    frame_duration_ms = property(lambda self: 1000 * self.block_size // self.sample_rate)
+    frame_duration_ms = property(
+        lambda self: 1000 * self.block_size // self.sample_rate
+    )
 
     def write_wav(self, filename, data):
         log.info("write wav %s", filename)
-        wf = wave.open(filename, 'wb')
+        wf = wave.open(filename, "wb")
         wf.setnchannels(self.CHANNELS)
         # wf.setsampwidth(self.pa.get_sample_size(FORMAT))
         wf.setsampwidth(2)
@@ -124,11 +126,12 @@ class VADAudio(Audio):
 
     def vad_collector(self, padding_ms=300, ratio=0.75, frames=None):
         """Generator that yields series of consecutive audio frames comprising each utterence, separated by yielding a single None.
-            Determines voice activity by ratio of frames in padding_ms. Uses a buffer to include padding_ms prior to being triggered.
-            Example: (frame, ..., frame, None, frame, ..., frame, None, ...)
-                      |---utterence---|        |---utterence---|
+        Determines voice activity by ratio of frames in padding_ms. Uses a buffer to include padding_ms prior to being triggered.
+        Example: (frame, ..., frame, None, frame, ..., frame, None, ...)
+                  |---utterence---|        |---utterence---|
         """
-        if frames is None: frames = self.frame_generator()
+        if frames is None:
+            frames = self.frame_generator()
         num_padding_frames = padding_ms // self.frame_duration_ms
         ring_buffer = collections.deque(maxlen=num_padding_frames)
         triggered = False
@@ -159,7 +162,12 @@ class VADAudio(Audio):
 
 
 def default_save_audio_path_func(vad_audio, wav_data, wav_dir="save_audio_old/"):
-    vad_audio.write_wav(os.path.join(wav_dir, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
+    vad_audio.write_wav(
+        os.path.join(
+            wav_dir, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")
+        ),
+        wav_data,
+    )
     os.makedirs(wav_dir, exist_ok=True)
 
 
@@ -167,7 +175,7 @@ def default_input_detected_callback(text):
     if not text:
         return
     print("Recognized: %s" % text)
-    with open("test.txt", 'a') as f:
+    with open("test.txt", "a") as f:
         f.write(text + "\n")
     # if text:
     #     r = requests.get("http://localhost:8000/classify/"+text)
@@ -176,23 +184,28 @@ def default_input_detected_callback(text):
     #     print("Json Response", json.dumps(r.json(), indent = 4))
 
 
-def handle_audio(save_audio_path_func, input_detected_callback,
-                 deepspeech_model_dir='deepspeech-0.7.3-models',
-                 verbose=True,
-                 vad_aggressiveness=1,
-                 input_file=None):
-    model_path = os.path.join(deepspeech_model_dir, 'deepspeech-0.7.3-models.pbmm')
-    log.info('Initializing model...')
+def handle_audio(
+    save_audio_path_func,
+    input_detected_callback,
+    deepspeech_model_dir="deepspeech-0.7.3-models",
+    verbose=True,
+    vad_aggressiveness=1,
+    input_file=None,
+):
+    model_path = os.path.join(deepspeech_model_dir, "deepspeech-0.7.3-models.pbmm")
+    log.info("Initializing model...")
     model = deepspeech.Model(model_path)
     # Starting audio with VAD
-    vad_audio = VADAudio(aggressiveness=vad_aggressiveness,
-                         device=None,
-                         input_rate=DEFAULT_SAMPLE_RATE,
-                         file=input_file)
+    vad_audio = VADAudio(
+        aggressiveness=vad_aggressiveness,
+        device=None,
+        input_rate=DEFAULT_SAMPLE_RATE,
+        file=input_file,
+    )
     log.info("Listening (ctrl-C to exit)...")
     spinner = None
     if verbose:
-        spinner = Halo(spinner='line')
+        spinner = Halo(spinner="line")
     frames = vad_audio.vad_collector()
     stream_context = model.createStream()
     wav_data = bytearray()
@@ -200,20 +213,27 @@ def handle_audio(save_audio_path_func, input_detected_callback,
     for frame in frames:
         if frame is not None:
 
-            if spinner: spinner.start()
+            if spinner:
+                spinner.start()
 
             logging.debug("streaming frame")
             stream_context.feedAudioContent(np.frombuffer(frame, np.int16))
 
-            if True: wav_data.extend(frame)
+            if True:
+                wav_data.extend(frame)
 
         else:
-            if spinner: spinner.stop()
+            if spinner:
+                spinner.stop()
             logging.debug("end utterence")
             if True:
                 vad_audio.write_wav(
-                    os.path.join('save_audio_old', datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")),
-                    wav_data)
+                    os.path.join(
+                        "save_audio_old",
+                        datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav"),
+                    ),
+                    wav_data,
+                )
                 wav_data = bytearray()
             text = stream_context.finishStream()
             text = text.strip()
@@ -223,17 +243,22 @@ def handle_audio(save_audio_path_func, input_detected_callback,
 
 
 @click.command()
-@click.option('-v', default=True, help='Not verbose')
-@click.option('--vad_agg', default=1,
-              help='Set aggressiveness of VAD: an integer between 0 and 3, 0 being the least aggressive about filtering out non-speech, 3 the most aggressive.')
+@click.option("-v", default=True, help="Not verbose")
+@click.option(
+    "--vad_agg",
+    default=1,
+    help="Set aggressiveness of VAD: an integer between 0 and 3, 0 being the least aggressive about filtering out non-speech, 3 the most aggressive.",
+)
 @click.option("-f", help="Read from .wav file instead of microphone")
 def cli(vad_agg, f, v=True):
     """Simple program that greets NAME for a total of COUNT times."""
-    handle_audio(default_save_audio_path_func,
-                 default_input_detected_callback,
-                 verbose=v,
-                 vad_aggressiveness=vad_agg)
+    handle_audio(
+        default_save_audio_path_func,
+        default_input_detected_callback,
+        verbose=v,
+        vad_aggressiveness=vad_agg,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
