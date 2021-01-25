@@ -19,16 +19,17 @@
 Install the requirements via
 `pip3 install -r requirements.txt` and run the jupyter notebook
 
+The code can either be run as a live server mode, streaming mode, or direct text mode.
+
+
 and run server via
 ```python
 pip3 server.py
 ```
-## Docker Setup Instructions
 
-Use The Makefile to run 
-``
-make run-core
-``
+To get the models required to run, download the two model files at https://drive.google.com/drive/folders/16glf6J5UXeyCPusQR2xr8GGrD0r1hvXT
+and insert them into the skills folder.
+- TODO simplify this process
 
 
 ## Architecture Documentation

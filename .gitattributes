@@ -1,2 +1,0 @@
-Glove/glove.840B.300d.txt filter=lfs diff=lfs merge=lfs -text
-encoder/infersent1.pkl filter=lfs diff=lfs merge=lfs -text
