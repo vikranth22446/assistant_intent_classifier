@@ -1,4 +1,6 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # cleanup TF error message items
+
 import re
 import shutil
 import subprocess
@@ -111,7 +113,7 @@ class Wav2LetterTranscription(Transcription):
         volume_mount_dir = basedir
         wav2_letter_model_path = "wav2lettermodel"
         # Handle synchronously on purpose
-
+        
         cmd = f"""docker run --rm -v {volume_mount_dir}:/root/host/ -i --ipc=host -a stdin -a stdout -a stderr wav2letter/wav2letter:inference-latest sh -c 'cat /root/host/{wave_path} | /root/wav2letter/build/inference/inference/examples/simple_streaming_asr_example --input_files_base_path /root/host/{wav2_letter_model_path}'"""
         start = time.time()
 
@@ -249,7 +251,7 @@ if __name__ == "__main__":
     recordings_folder = "wetransfer-b86082/"
     # process_pipeline_entry("test.wav", "test_transcript", Wav2LetterTranscription())
     process_pipeline_entry(
-        "savewav_2020-09-09_20-33-18_538986.wav",
+        "save_audio/savewav_2020-09-09_19-04-59_750112.wav",
         "test_transcript",
         DeepspeechTranscription(),
     )

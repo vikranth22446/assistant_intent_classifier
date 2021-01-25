@@ -26,11 +26,14 @@ and run server via
 ```python
 pip3 server.py
 ```
+or a local pipeline via 
+```python
+python3 text_based_classification.py
+```
 
 To get the models required to run, download the two model files at https://drive.google.com/drive/folders/16glf6J5UXeyCPusQR2xr8GGrD0r1hvXT
 and insert them into the skills folder.
 - TODO simplify this process
-
 
 ## Architecture Documentation
 One Architecture Diagram: https://people.eecs.berkeley.edu/~nmalkin/alva/architecture

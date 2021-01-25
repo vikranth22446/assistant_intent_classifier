@@ -11,6 +11,7 @@ deepspeech-0.7.3-models
 ffcc_keras_model
 infraset_model.torch
 save_audio
+intent_cache
 *.swp
 mycroft_speech/
 data.json
