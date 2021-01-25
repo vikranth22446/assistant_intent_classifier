@@ -29,7 +29,7 @@ deepspeech-gpu==0.9.3
 defusedxml==0.6.0
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.0/en_core_web_sm-2.3.0.tar.gz
 entrypoints==0.3
-fann2==1.1.2
+#fann2==1.1.2
 filelock==3.0.12
 Flask==1.1.2
 Flask-SocketIO==4.3.0
