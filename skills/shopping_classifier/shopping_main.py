@@ -1,7 +1,7 @@
 import os
 import pickle
 import sys
-
+from fuzzywuzzy import process
 import numpy as np
 import pandas as pd
 import spacy
@@ -21,7 +21,7 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-from .models import InferSent
+from models import InferSent
 
 np.random.seed(3252)
 PATH = (os.path.dirname(os.path.abspath(__file__))) + "/"
@@ -182,18 +182,18 @@ def train_model():
     torch.save(model, "infraset_model.torch")
 
     # print("loading X Train vec")
-    # X_train_vec = get_doc2vec(X_train, model)
-    X_train_vec = np.load(PATH + "X_train_vec.npy")
+    X_train_vec = get_doc2vec(X_train, model)
+    # X_train_vec = np.load(PATH + "X_train_vec.npy")
 
     # X_train_vec
     # print("loading X Val vec")
-    # X_val_vec = get_doc2vec(X_val, model)
-    X_val_vec = np.load(PATH + "X_val_vec.npy")
+    X_val_vec = get_doc2vec(X_val, model)
+    # X_val_vec = np.load(PATH + "X_val_vec.npy")
 
     # print("loading X Test vec")
-    X_test_vec = np.load(PATH + "X_test_vec.npy")
+    # X_test_vec = np.load(PATH + "X_test_vec.npy")
 
-    # X_test_vec = get_doc2vec(X_test, model)
+    X_test_vec = get_doc2vec(X_test, model)
 
     # Save the data using np.savez('X_train_val_test.npz', X_train_vec=X_train_vec, X_val_vec=X_val_vec, X_test_vec=X_test_vec)
     # ffcc = generate_basic_fully_connected()
@@ -300,80 +300,46 @@ def find_shopping_item(text):
 
     def get_labels_decoded(arr):
         return label_encoder.inverse_transform(arr)
-
     def cosine(u, v):
         return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
-
-    ffcc = tf.keras.models.load_model(PATH + "ffcc_keras_model", compile=False)
-
-    # train_accuracy_without_oos, train_classifications_without_oos = calculate_accuracy(ffcc, X_train_vec, y_train, with_oos=False)
-    # print("Train Accuracy Without OOS", train_accuracy_without_oos)
-    def quick_predict_label(infraset_model, classification_model, text, cutoff=0.0):
-        X = get_doc2vec([text], infraset_model)
-        predictions = classification_model.predict(X)
-        predicted_labels = get_labels_decoded(
-            np.argmax(predictions, axis=1)
-        )  # each integer is [0, 0, 0,1]
-        prob = np.max(predictions, axis=1)  # each integer is [0, 0, 0,1]
-        if prob < cutoff:
-            predicted_labels[0] = "oos"  # since only one item
-
-        return predicted_labels, prob
-
-    results = []
-    pred, probs = quick_predict_label(model, ffcc, text, cutoff=0.7)
-    results.append({"text": text, "pred": pred[0]})
-
-    if pred[0] == "oos":
-        return pred[0], probs
-
-    sentArr = [text]
-    testsite_array = []
-    with open(PATH + "topsites.txt") as my_file:
-        for line in my_file:
-            testsite_array.append(line.strip())
-
     en_nlp = spacy.load("en_core_web_sm")
-    for eachSent in sentArr:
-        doc = en_nlp(eachSent)
-        sentence = next(doc.sents)
-        for word in sentence:
-            if "obj" in word.dep_ or "conj" in word.dep_:
-
-                if cosine(
-                    model.encode(["shopping market or grocery store"])[0],
+    doc = en_nlp(text)
+    sentence = next(doc.sents)
+    predicted_item = set()
+    productlisting = list()
+    with open(PATH + "food.txt") as my_file:
+        for line in my_file:
+            productlisting.append(str(line).strip())
+    print(sentence)
+    for word in sentence:
+        print(word)
+        if "obj" in word.dep_ or "conj" in word.dep_:
+            if cosine( model.encode(["shopping market or grocery store"])[0],
+                model.encode([str(word)])[0],
+            ) < cosine(
+                model.encode(["food or item"])[0], model.encode([str(word)])[0]
+            ):
+                # print(word)
+                temp = word
+                if prev[1] == "amod":
+                    # This is used for compound words
+                    word = prev[0]+ " " + word
+                # checks cosine similarity
+                cosSim = cosine(
+                    model.encode(["grocery item"])[0],
                     model.encode([str(word)])[0],
-                ) < cosine(
-                    model.encode(["food or item"])[0], model.encode([str(word)])[0]
-                ):
-                    wordArr = []
-
-                    if prev[1] == "amod":
-                        wordArr.append(prev[0])
-                        wordArr.append(word)
-                    else:
-                        wordArr.append(word)
-                    theAppend = " ".join(str(x) for x in wordArr)
-                    theLen = 1
-                    testsite_array.append(theAppend)
-                    target = open(PATH + "topsites.txt", "w")
-                    for i in range(0, len(testsite_array)):
-                        listitem = testsite_array[i]
-                        if not listitem:
-                            continue
-                        cosSim = cosine(
-                            model.encode(["grocery item"])[0],
-                            model.encode([listitem])[0],
-                        )
-                        if listitem[-1] != "\n":
-                            if cosSim > 0.35:
-                                target.write("%s\n" % listitem)
-                        else:
-                            target.write("%s" % listitem)
-                    target.close()
-            prev = (word, word.dep_)
-    predicted_item = testsite_array[0]
-    return pred[0], probs[0], predicted_item
+                )
+                print(cosSim) 
+                curwordvec = en_nlp(str(temp))
+                if cosSim > 0.35:
+                    predicted_item.add(word)
+                else:
+                    for product in productlisting:
+                        if en_nlp(product).similarity(curwordvec) > 0.8:
+                            predicted_item.add(word)
+                            break
+        prev = (word, word.dep_)
+    return list(predicted_item)
 
 
 if __name__ == "__main__":
@@ -386,7 +352,7 @@ if __name__ == "__main__":
     # UTF8Reader = codecs.getreader('utf8')
     # sys.stdin = UTF8Reader(sys.stdin)
 
-    res = find_shopping_item("We ran out of watermelons")
+    res = find_shopping_item("We ran out of juice and soda")
     print(res)
     # for line in sys.stdin:
     # print(line.strip())
