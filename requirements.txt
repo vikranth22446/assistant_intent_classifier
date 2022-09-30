@@ -58,7 +58,7 @@ isort==5.7.0
 itsdangerous==1.1.0
 jedi==0.17.0
 Jinja2==2.11.2
-joblib==0.15.1
+joblib==1.2.0
 jsonify==0.5
 jsonschema==3.2.0
 jupyter-client==6.1.3
