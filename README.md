@@ -1,4 +1,6 @@
 # Assistant Intent Classifier
+Speech intent classificiation
+
 ## Code Structure
 ```
 ├── Makefile
