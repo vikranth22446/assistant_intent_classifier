@@ -51,7 +51,7 @@ humanfriendly==9.1
 idna==2.9
 inexactsearch==1.0.2
 ipykernel==5.3.0
-ipython==7.14.0
+ipython==8.10.0
 ipython-genutils==0.2.0
 ipywidgets==7.5.1
 isort==5.7.0
