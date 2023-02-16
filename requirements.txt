@@ -176,7 +176,7 @@ wcwidth==0.1.9
 webencodings==0.5.1
 webrtcvad==2.0.10
 websocket-client==0.54.0
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wget==3.2
 widgetsnbextension==3.5.1
 wrapt==1.12.1
